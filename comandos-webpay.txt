@@ -1,0 +1,125 @@
+# Inicio de proyecto Laravel 10 con PHP 8.1
+composer create-project --prefer-dist laravel/laravel webpay
+cd webpay
+# Manejo de login
+composer require laravel/breeze --dev
+php artisan breeze:install blade
+composer require laravel/tinker
+http://localhost/phpmyadmin 
+# Crear base de datos para proyecto webpay y agregar en archivo .env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=webpay
+DB_USERNAME=root
+DB_PASSWORD=
+---------------------------------------------------------------------------------------------------
+# Webs Fuentes Documentación Oficial:
+https://www.transbankdevelopers.cl/
+https://www.transbankdevelopers.cl/documentacion/como_empezar#como-empezar // Inicio Usando el API REST, Ambiente de Integración
+https://www.transbankdevelopers.cl/documentacion/como_empezar#c-usando-el-api-rest
+https://www.transbankdevelopers.cl/referencia/webpay?l=http
+https://www.transbankdevelopers.cl/documentacion/como_empezar#ambiente-de-integracion // Ambiente de integración, El servicio que vamos a usar WebPay Plus
+---------------------------------------------------------------------------------------------------
+-------- Info desde HTTP Documentación --------
+https://www.transbankdevelopers.cl/referencia/webpay?l=http#crear-una-transaccion
+# Ambiente de Producción
+Host: https://webpay3g.transbank.cl
+
+# Ambiente de Integración
+Host: https://webpay3gint.transbank.cl
+
+Tbk-Api-Key-Id: 597055555532
+Tbk-Api-Key-Secret: 579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C
+
+POST /rswebpaytransaction/api/webpay/v1.2/transactions
+
+Tbk-Api-Key-Id: 597055555532
+Tbk-Api-Key-Secret: 579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C
+Content-Type: application/json
+
+{
+ "buy_order": "ordenCompra12345678",
+ "session_id": "sesion1234557545",
+ "amount": 10000,
+ "return_url": "http://www.comercio.cl/webpay/retorno"
+}
+
+-------- PostMan Test Configuración --------
+# Integración de Link vía POST
+https://webpay3gint.transbank.cl/rswebpaytransaction/api/webpay/v1.2/transactions
+# Headers 
+Tbk-Api-Key-Id: 597055555532
+Tbk-Api-Key-Secret: 579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C
+Content-Type: application/json
+# Body > Raw > JSON
+{
+ "buy_order": "ordenCompra12345678",
+ "session_id": "sesion1234557545",
+ "amount": 10000,
+ "return_url": "http://www.comercio.cl/webpay/retorno"
+}
+# Como información buy_order tiene que ser un numero unico, session_id tambien esta variable
+-------- PostMan Test Respuesta --------
+{
+    "token": "01abfcd12eb75ab1ed1708a38239e26916fbbb08e4af539215235e51f84c74aa",
+    "url": "https://webpay3gint.transbank.cl/webpayserver/initTransaction"
+}
+
+/*
+stdClass Object ( 
+    [vci] => TSY 
+    [amount] => 10000 
+    [status] => AUTHORIZED 
+    [buy_order] => ordenCompra12345678 
+    [session_id] => sesion1234557545 
+    [card_detail] => stdClass Object ( [card_number] => 7763 ) 
+    [accounting_date] => 0731 
+    [transaction_date] => 2023-08-01T00:56:06.459Z 
+    [authorization_code] => 1415 
+    [payment_type_code] => VD 
+    [response_code] => 0 
+    [installments_number] => 0 
+) 1 
+*/
+---------------------------------------------------------------------------------------------------
+# Crear controlador para el manejo de pago WebPay Plus
+php artisan make:controller WebpayController
+---------------------------------------------------------------------------------------------------
+# 118. Programación de botón de pago // falta desde aqui para adelante
+
+---------------------------------------------------------------------------------------------------
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+php artisan route:cache
+php artisan config:cache
+
+php artisan optimize
+---------------------------------------------------------------------------------------------------
+Posibles errores en webpay plus 
+API REST de Webpay
+Todos los errores reportados por la API REST de Webpay despliegan un mensaje JSON con una descripción del error:
+
+400: el mensaje JSON es inválido. Puede ser que no corresponda a un mensaje bien estructurado o que contenga un campo no esperado.
+401: no autorizado. API Key y/o API Secret inválidos.
+404: la transacción no ha sido encontrada.
+405: método no permitido.
+406: no fue posible procesar la respuesta en el formato que el cliente indica.
+415: tipo de mensaje no permitido.
+422: el requerimiento no ha podido ser procesado ya sea por validaciones de datos o por lógica de negocios.
+500: ha ocurrido un error inesperado.
+
+En caso de recibir alguno de estos códigos es necesario que revises tu integración, lo puedes realizar siguiendo la documentación de 
+integración disponible en transbankdevelopers.cl/, recuerda que siempre te puedes contactar con nosotros a través de la comunidad de slack.
+---------------------------------------------------------------------------------------------------
+------------------------------------ CREAR REPOSITORIO GITHUB -------------------------------------
+# 1.- Compilar js y css que estan en package.json en este json estara [build": "vite build"] entonces compilamos antes, Estos archivos se compilan en public/build/.
+npm run build
+# 2.- en el archivo .gitignore sacamos la linea [/public/build] para que lo suba correctamente al Github.
+/public/build
+# 3.- cargar de manera manual el directorio lang/es para la traducción de laravel en caso de tener error, descargalo directo de Gihub en (<> Code → Download ZIP), 
+# esta se carga en el proyecto Laravel 'resources/lang/es' luego en el proyecto en 'config/app.php cambiar a ['locale' => 'es',]'.
+https://github.com/MarcoGomesr/laravel-validation-en-espanol
+# 4.- 
